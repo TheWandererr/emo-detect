@@ -1,10 +1,10 @@
 import cv2.cv2 as cv2
 import numpy as np
 import dlib
-import os
 import ctypes
 from utils.ImgUtils import ImgUtils
-from Face import Face
+from model.Face import Face
+from Main import PATH
 
 
 class Detector:
@@ -14,13 +14,13 @@ class Detector:
     SCALE = 60
     GREEN = (0, 255, 0)
     RED = (0, 0, 255)
-    PATH = os.getcwd()
+    PREDICTOR_PATH = PATH + "\\utils\\shape_predictor_68_face_landmarks.dat"
 
     def __init__(self, images_folder):
         self.sources = ImgUtils.upload_images_from(images_folder).resize_images(self.SCALE, self.WIDTH,
                                                                                 self.HEIGHT).get_images()
         self.detector = dlib.get_frontal_face_detector()
-        self.predictor = dlib.shape_predictor(Detector.PATH + "\\utils\\shape_predictor_68_face_landmarks.dat")
+        self.predictor = dlib.shape_predictor(Detector.PREDICTOR_PATH)
         self.faces = []
 
     def _shape_to_np_array(self, shape, dtype="int"):
@@ -67,7 +67,7 @@ class Detector:
 
     def save_detected_faces(self):
         for (i, image) in enumerate(self.sources):
-            cv2.imwrite(Detector.PATH + "\\out\\" + str(i + 1) + ".jpg", image)
+            cv2.imwrite(PATH + "\\out\\" + str(i + 1) + ".jpg", image)
 
     @staticmethod
     def rect_to_bb(rect):
