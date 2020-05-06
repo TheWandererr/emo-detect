@@ -1,10 +1,11 @@
 import cv2.cv2 as cv2
 import numpy as np
 import dlib
+import os
 import ctypes
 from utils.ImgUtils import ImgUtils
 from model.Face import Face
-from Main import PATH
+from utils.Logger import Logger
 
 
 class Detector:
@@ -14,13 +15,21 @@ class Detector:
     SCALE = 60
     GREEN = (0, 255, 0)
     RED = (0, 0, 255)
+    PATH = os.getcwd()
     PREDICTOR_PATH = PATH + "\\utils\\shape_predictor_68_face_landmarks.dat"
 
     def __init__(self, images_folder):
+        Logger.print("Загрузка изображений из " + images_folder)
         self.sources = ImgUtils.upload_images_from(images_folder).resize_images(self.SCALE, self.WIDTH,
                                                                                 self.HEIGHT).get_images()
-        self.detector = dlib.get_frontal_face_detector()
-        self.predictor = dlib.shape_predictor(Detector.PREDICTOR_PATH)
+        if len(self.sources) > 0:
+            Logger.print("Найдено " + str(len(self.sources)) + " изображений")
+            Logger.print("Инициализация детекторов...")
+            self.detector = dlib.get_frontal_face_detector()
+            self.predictor = dlib.shape_predictor(Detector.PREDICTOR_PATH)
+            Logger.print("Успех!")
+        else:
+            Logger.print("Изображения не найдены!")
         self.faces = []
 
     def _shape_to_np_array(self, shape, dtype="int"):
@@ -48,26 +57,39 @@ class Detector:
                     cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
     def search_faces(self):
-        for image in self.sources:
-            gray_image = ImgUtils.image_to_gray(image)
-            faces = self._detect_faces_on_gray(gray_image)
+        if len(self.sources) > 0:
+            Logger.print("Поиск лиц на изображениях...\n")
+            for source in self.sources:
+                Logger.print("Обработка " + source.filename)
 
-            for (i, face) in enumerate(faces):
-                (x, y, w, h) = Detector.rect_to_bb(face)
-                self._draw_rectangle_around_face(image, (x, y), (w, h))
+                image = source.matrix
+                gray_image = ImgUtils.image_to_gray(image)
+                faces = self._detect_faces_on_gray(gray_image)
 
-                name = "Face #{}".format(i + 1)
-                self._sign_face(image, name, x, y)
+                if len(faces) > 0:
+                    Logger.print("Найдено " + str(len(faces)) + " лиц")
+                for (i, face) in enumerate(faces):
+                    (x, y, w, h) = Detector.rect_to_bb(face)
+                    self._draw_rectangle_around_face(image, (x, y), (w, h))
 
-                landmarks_shape = self._detect_landmarks_on_face(gray_image, face)
-                np_shape = self._shape_to_np_array(landmarks_shape)
-                self._draw_face_landmarks(image, np_shape)
+                    name = "Face #{}".format(i + 1)
+                    self._sign_face(image, name, x, y)
 
-                self.faces += [Face(face, name, np_shape, image)]
+                    Logger.print("Поиск ключевых точек на лице...")
+                    landmarks_shape = self._detect_landmarks_on_face(gray_image, face)
+                    np_shape = self._shape_to_np_array(landmarks_shape)
+                    Logger.print("Отрисовка точек\n")
+                    self._draw_face_landmarks(image, np_shape)
+
+                    self.faces += [Face(face, name, np_shape, image)]
+                else:
+                    Logger.print("Лица не найдены")
 
     def save_detected_faces(self):
-        for (i, image) in enumerate(self.sources):
-            cv2.imwrite(PATH + "\\out\\" + str(i + 1) + ".jpg", image)
+        out_path = self.PATH + "\\out\\"
+        Logger.print("Сохранение результатов в " + out_path)
+        for source in self.sources:
+            cv2.imwrite(out_path + source.filename, source.matrix)
 
     @staticmethod
     def rect_to_bb(rect):

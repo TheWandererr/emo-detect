@@ -1,5 +1,6 @@
 import os
 import cv2.cv2 as cv2
+from model.Image import Image
 
 
 class ImgUtils:
@@ -12,12 +13,13 @@ class ImgUtils:
         for filename in files:
             img = cv2.imread(os.path.join(folder, filename))
             if img is not None:
-                ImgUtils.IMAGES.append(img)
+                ImgUtils.IMAGES += [Image(img, filename)]
         return ImgUtils
 
     @staticmethod
     def resize_images(scale, max_width, max_height):
-        for (i, image) in enumerate(ImgUtils.IMAGES):
+        for (i, source) in enumerate(ImgUtils.IMAGES):
+            image = source.matrix
             dims = image.shape
             width = dims[1]
             height = dims[0]
@@ -30,7 +32,7 @@ class ImgUtils:
                     width = int(width * scale / 100)
                     height = int(height * scale / 100)
             if replace is True:
-                ImgUtils.IMAGES[i] = cv2.resize(image, (width, height))
+                ImgUtils.IMAGES[i].matrix = cv2.resize(image, (width, height))
         return ImgUtils
 
     @staticmethod
