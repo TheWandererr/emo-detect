@@ -1,9 +1,9 @@
-from Detector import Detector
-import os
+from EmoDetector import EmoDetector
+
+
+def process_emo_recognition(data):
+    emo_detector = EmoDetector()
+
 
 if __name__ == '__main__':
-    detector = Detector(os.getcwd() + "\\data\\")
-    detector.search_faces()
-    detector.save_detected_faces()
-
-
+    process_emo_recognition()
