@@ -10,6 +10,9 @@ class Face:
         self.source = source
         self.instance = face
         self.normalized_landmarks = Face._pre_process_face_landmarks(np_landmarks)
+        self.expected_emo = source.emo_label
+        self.predicted_emo = None
+        self.prob = None
 
     @staticmethod
     def _pre_process_face_landmarks(np_landmarks):
@@ -48,3 +51,7 @@ class Face:
             x_arr += [x]
             y_arr += [y]
         return x_arr, y_arr
+
+    def set_emo_recognize_result(self, prob, pred):
+        self.prob = prob
+        self.predicted_emo = pred

@@ -1,6 +1,6 @@
 import os
 import cv2.cv2 as cv2
-from model.Image import Image
+from model.EmoImage import EmoImage
 
 
 class ImgUtils:
@@ -8,12 +8,15 @@ class ImgUtils:
     IMAGES = []
 
     @staticmethod
-    def upload_images_from(folder):
+    def upload_images_from(folder, lable=""):
         files = os.listdir(folder)
-        for filename in files:
-            img = cv2.imread(os.path.join(folder, filename))
+        for name in files:
+            path = os.path.join(folder, name)
+            if os.path.isdir(path):
+                ImgUtils.upload_images_from(path, name)
+            img = cv2.imread(path)
             if img is not None:
-                ImgUtils.IMAGES += [Image(img, filename)]
+                ImgUtils.IMAGES += [EmoImage(img, name, lable)]
         return ImgUtils
 
     @staticmethod

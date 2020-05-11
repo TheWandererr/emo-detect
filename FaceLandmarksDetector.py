@@ -1,10 +1,12 @@
-import cv2.cv2 as cv2
-import numpy as np
-import dlib
-import os
 import ctypes
-from utils.ImgUtils import ImgUtils
+import os
+
+import cv2.cv2 as cv2
+import dlib
+import numpy as np
+
 from model.Face import Face
+from utils.ImgUtils import ImgUtils
 from utils.Logger import Logger
 
 
@@ -21,8 +23,7 @@ class FaceLandmarksDetector:
 
     def __init__(self, images_folder):
         Logger.print("Загрузка изображений из " + images_folder)
-        self.sources = ImgUtils.upload_images_from(images_folder).resize_images(self.SCALE, self.WIDTH,
-                                                                                self.HEIGHT).get_images()
+        self.sources = ImgUtils.upload_images_from(images_folder).get_images()
         if len(self.sources) > 0:
             Logger.print("Найдено " + str(len(self.sources)) + " изображений")
             Logger.print("Инициализация детекторов...")
@@ -41,7 +42,7 @@ class FaceLandmarksDetector:
 
     def _detect_faces_on_gray(self, gray):
         clahe_image = self.CLAHE.apply(gray)
-        return self.detector(clahe_image)
+        return self.detector(clahe_image, 1)
 
     def _detect_landmarks_on_face(self, source, face):
         return self.predictor(source, face)
@@ -56,7 +57,7 @@ class FaceLandmarksDetector:
 
     def _sign_face(self, source, text, x, y):
         cv2.putText(source, text, (x - 10, y - 10),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, self.GREEN, 2)
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.3, self.GREEN, 1)
 
     def _mark_face(self, source, face, num):
         (x, y, w, h) = FaceLandmarksDetector.rect_to_bb(face)
@@ -89,16 +90,18 @@ class FaceLandmarksDetector:
                 if len(faces) > 0:
                     Logger.print("Найдено " + str(len(faces)) + " лиц")
                     for (i, face) in enumerate(faces):
-                        face_name = self._mark_face(image, face, i+1)
+                        face_name = self._mark_face(image, face, i + 1)
                         np_landmarks_shape = self._mark_face_landmarks(image, gray_image, face)
-                        self.faces += [Face(face, face_name, np_landmarks_shape, image)]
+                        self.faces += [Face(face, face_name, np_landmarks_shape, source)]
                 else:
                     Logger.print("Лица не найдены")
+        return self.faces
 
     def save_result(self):
         out_path = self.PATH + "\\out\\"
-        Logger.print("Сохранение результатов в " + out_path)
-        for source in self.sources:
+        Logger.print("Сохранение результатов поиска лиц в " + out_path)
+        for face in self.faces:
+            source = face.source
             cv2.imwrite(out_path + source.filename, source.matrix)
 
     @staticmethod
