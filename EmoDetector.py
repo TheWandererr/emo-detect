@@ -7,6 +7,7 @@ from sklearn.svm import SVC
 
 from FaceLandmarksDetector import FaceLandmarksDetector
 from utils.Logger import Logger
+from utils.DigitUtils import to_fixed
 
 
 class EmoDetector:
@@ -33,7 +34,7 @@ class EmoDetector:
         prediction_data = []
         prediction_labels = []
 
-        self._shuffle_faces()
+        # self._shuffle_faces()
 
         for item in self.faces:
             prediction_data += [item.normalized_landmarks]
@@ -42,10 +43,10 @@ class EmoDetector:
         return prediction_data, prediction_labels
 
     def _process_results(self, prob, pred):
-        for idx, arr in enumerate(prob):
+        for idx, face_emotions in enumerate(prob):
             prob_ = []
             for emo_index, emotion in enumerate(self.EMOTIONS):
-                prob_ += [{emotion: arr[emo_index] * 100}]
+                prob_ += [{emotion: to_fixed(face_emotions[emo_index] * 100, 3)}]
             face = self.faces[idx]
             face.set_emo_recognize_result(list(prob_), pred[idx])
         self._save_results()
