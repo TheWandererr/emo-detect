@@ -98,7 +98,9 @@ class FaceLandmarksDetector:
         return self.faces
 
     def save_result(self):
-        out_path = self.PATH + "\\out\\"
+        out_path = self.PATH + "\\out\\faces\\"
+        if not os.path.exists(out_path):
+            os.mkdir(out_path)
         Logger.print("Сохранение результатов поиска лиц в " + out_path)
         for face in self.faces:
             source = face.source
