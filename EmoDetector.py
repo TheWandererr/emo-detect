@@ -96,6 +96,20 @@ class EmoDetector:
         pickle.dump(clf, open(self.MODEL_NAME, 'wb'))
         Logger.print("Готово")
 
+    def _get_prediction_lables(self, prob):
+        pred = []
+        maximum = 0
+        index_emo_saved = 0
+        for emotions_digits in prob:
+            for index_emo, digit in enumerate(emotions_digits):
+                if digit > maximum:
+                    maximum = digit
+                    index_emo_saved = index_emo
+            pred += [self.EMOTIONS[index_emo_saved]]
+            maximum = 0
+        return pred
+
+
     def recognize(self):
         if len(self.faces) > 0:
 
@@ -109,10 +123,11 @@ class EmoDetector:
 
             Logger.print("Определение эмоций началось...")
             np_prediction_data = np.array(prediction_data)
-            pred = model.predict(np_prediction_data)
 
             prob = model.predict_proba(np_prediction_data)
             prob_s = np.around(prob, decimals=5)
+
+            pred = self._get_prediction_lables(prob_s)
 
             Logger.print("Завершено! Обработка результатов...")
             self._process_results(prob_s, pred)
