@@ -5,20 +5,18 @@ import random
 import numpy as np
 from sklearn.svm import SVC
 
-from FaceLandmarksDetector import FaceLandmarksDetector
 from utils.Logger import Logger
 from utils.DigitUtils import to_fixed
 
 
 class EmoDetector:
     PATH = os.getcwd()
-    FACE_LANDMARKS_DETECTOR = FaceLandmarksDetector(PATH + "\\data\\")
+
     MODEL_NAME = "finalized_model.svm"
     EMOTIONS = ["anger", "contempt", "disgust", "fear", "happiness", "sadness", "surprise"]
 
-    def __init__(self):
-        self.faces = self.FACE_LANDMARKS_DETECTOR.detect_faces_and_landmarks()
-        self.FACE_LANDMARKS_DETECTOR.save_result()
+    def __init__(self, faces):
+        self.faces = faces
         Logger.print("Инициализация модели SVM...")
         try:
             self.clf_trained = self._load_model()
@@ -80,20 +78,20 @@ class EmoDetector:
     def _train_and_save(self):
         Logger.print("Обучение модели началось...")
         i = 0
-        clf = SVC(kernel='linear', probability=True, tol=1e-3)
-        while i < 20:
+        clf = SVC(kernel='linear', probability=True, tol=1e-3)   # Инициализация векторного классифиатора модели SVM
+        while i < 20:   # Обучение в 20 циклов
             training_data = []
             training_labels = []
-            self._shuffle_faces()
+            self._shuffle_faces()   # Перемешивание входных данных
             for face in self.faces:
-                training_data += [face.normalized_landmarks]
-                training_labels += [face.expected_emo]
-            np_training_data = np.array(training_data)
+                training_data += [face.normalized_landmarks]   # Формирование массива из векторов опорных точечк
+                training_labels += [face.expected_emo]   # Формирование массива ожидаемых эмоций
+            np_training_data = np.array(training_data)   # Преобразование массивов в удобный для классификатора вид
             np_training_labels = np.array(training_labels)
-            clf.fit(np_training_data, np_training_labels)
+            clf.fit(np_training_data, np_training_labels)   # Обучение классификатора
             i += 1
         Logger.print("Обучение завершено успешно! Сохранение модели")
-        pickle.dump(clf, open(self.MODEL_NAME, 'wb'))
+        pickle.dump(clf, open(self.MODEL_NAME, 'wb'))   # Сохранение обученной модели
         Logger.print("Готово")
 
     def _get_prediction_lables(self, prob):
@@ -108,7 +106,6 @@ class EmoDetector:
             pred += [self.EMOTIONS[index_emo_saved]]
             maximum = 0
         return pred
-
 
     def recognize(self):
         if len(self.faces) > 0:

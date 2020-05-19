@@ -1,9 +1,18 @@
 from EmoDetector import EmoDetector
 from utils.Logger import Logger
+from FaceLandmarksDetector import FaceLandmarksDetector
+import os
+
+PATH = os.getcwd()
 
 
 def process_emo_recognition():
-    emo_detector = EmoDetector()
+
+    face_landmarks_detector = FaceLandmarksDetector(PATH + "\\data\\")
+    faces = face_landmarks_detector.detect_faces_and_landmarks()
+    face_landmarks_detector.save_result()
+
+    emo_detector = EmoDetector(faces)
     emo_detector.recognize()
 
 
