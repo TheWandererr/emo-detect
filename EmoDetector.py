@@ -1,66 +1,58 @@
 import os
+import pickle
+import random
 
 import numpy as np
 from sklearn.svm import SVC
-import random
-from utils.Logger import Logger
 
-from FaceLandmarksDetector import FaceLandmarksDetector
+from utils.Logger import Logger
+from utils.DigitUtils import to_fixed
 
 
 class EmoDetector:
     PATH = os.getcwd()
-    FACE_LANDMARKS_DETECTOR = FaceLandmarksDetector(PATH + "\\data\\")
-    emotions = ["anger", "contempt", "disgust", "fear", "sadness", "surprise"]
 
-    def __init__(self):
-        self.faces = self.FACE_LANDMARKS_DETECTOR.detect_faces_and_landmarks()
-        self.FACE_LANDMARKS_DETECTOR.save_result()
+    MODEL_NAME = "finalized_model.svm"
+    EMOTIONS = ["anger", "contempt", "disgust", "fear", "happiness", "sadness", "surprise"]
 
+    def __init__(self, faces):
+        self.faces = faces
         Logger.print("Инициализация модели SVM...")
-        self.clf = SVC(kernel='linear', probability=True, tol=1e-3)
+        try:
+            self.clf_trained = self._load_model()
+            self.model_is_ready = True
+        except FileNotFoundError:
+            self.clf_trained = None
+            self.model_is_ready = False
 
     def _shuffle_faces(self):
         random.shuffle(self.faces)
 
-    def _split_faces(self):
-        self._shuffle_faces()
-        training = self.faces[:int(len(self.faces) * 0.8)]  # get first 80% of faces list
-        prediction = self.faces[-int(len(self.faces) * 0.2):]  # get last 20% of faces list
-        return training, prediction
-
     def _make_sets(self):
-        training_data = []
-        training_labels = []
         prediction_data = []
         prediction_labels = []
 
-        training, prediction = self._split_faces()
+        # self._shuffle_faces()
 
-        for item in training:
-            training_data += [item.normalized_landmarks]
-            training_labels += [item.expected_emo]
-
-        for item in prediction:
+        for item in self.faces:
             prediction_data += [item.normalized_landmarks]
             prediction_labels += [item.expected_emo]
 
-        prediction_faces_index = self.faces.index(prediction[0])
-        return training_data, training_labels, prediction_data, prediction_labels, prediction_faces_index
+        return prediction_data, prediction_labels
 
-    def _process_results(self, prob, pred, index_from):
-        for idx, arr in enumerate(prob):
+    def _process_results(self, prob, pred):
+        for idx, face_emotions in enumerate(prob):
             prob_ = []
-            for emo_index, emotion in enumerate(self.emotions):
-                prob_ += [{emotion: arr[emo_index] * 100}]
-            face = self.faces[index_from + idx]
+            for emo_index, emotion in enumerate(self.EMOTIONS):
+                prob_ += [{emotion: to_fixed(face_emotions[emo_index] * 100, 3)}]
+            face = self.faces[idx]
             face.set_emo_recognize_result(list(prob_), pred[idx])
-        self._save_results(index_from)
+        self._save_results()
 
-    def _save_results(self, index_from):
+    def _save_results(self):
         path = self.PATH + "\\out\\res.txt"
         Logger.print("Сохранение результатов в " + path)
-        processed_faces = self.faces[index_from:]
+        processed_faces = self.faces
         correct = 0
         incorrect = 0
         with open(path, "w", encoding="UTF-8") as file:
@@ -75,38 +67,66 @@ class EmoDetector:
                 file.write("Ожидаемая эмоция: " + expected_emo + "\n")
                 file.write("Полученная эмоция: " + real_emo + "\n")
                 file.write("Общие результаты в %:" + str(face.prob) + "\n\n")
-            file.write("Иого: \n")
+            file.write("Итого: \n")
             file.write("Верные: " + str(correct) + "\n")
             file.write("Неверные: " + str(incorrect) + "\n")
             file.write("Точность = " + str(correct / len(processed_faces) * 100) + "%")
 
-    def _train(self):
-        training_data, training_labels, prediction_data, prediction_labels, prediction_faces_index = self._make_sets()
+    def _load_model(self):
+        return pickle.load(open(self.MODEL_NAME, 'rb'))
 
-        np_training_data = np.array(training_data)
-        np_training_labels = np.array(training_labels)
-        self.clf.fit(np_training_data, np_training_labels)
+    def _train_and_save(self):
+        Logger.print("Обучение модели началось...")
+        i = 0
+        clf = SVC(kernel='linear', probability=True, tol=1e-3)   # Инициализация векторного классифиатора модели SVM
+        while i < 20:   # Обучение в 20 циклов
+            training_data = []
+            training_labels = []
+            self._shuffle_faces()   # Перемешивание входных данных
+            for face in self.faces:
+                training_data += [face.normalized_landmarks]   # Формирование массива из векторов опорных точечк
+                training_labels += [face.expected_emo]   # Формирование массива ожидаемых эмоций
+            np_training_data = np.array(training_data)   # Преобразование массивов в удобный для классификатора вид
+            np_training_labels = np.array(training_labels)
+            clf.fit(np_training_data, np_training_labels)   # Обучение классификатора
+            i += 1
+        Logger.print("Обучение завершено успешно! Сохранение модели")
+        pickle.dump(clf, open(self.MODEL_NAME, 'wb'))   # Сохранение обученной модели
+        Logger.print("Готово")
+
+    def _get_prediction_lables(self, prob):
+        pred = []
+        maximum = 0
+        index_emo_saved = 0
+        for emotions_digits in prob:
+            for index_emo, digit in enumerate(emotions_digits):
+                if digit > maximum:
+                    maximum = digit
+                    index_emo_saved = index_emo
+            pred += [self.EMOTIONS[index_emo_saved]]
+            maximum = 0
+        return pred
 
     def recognize(self):
-
         if len(self.faces) > 0:
 
-            Logger.print("Обучение модели началось...")
-            i = 0
-            while i < 10:
-                self._train()
-                i += 1
-            Logger.print("Обучение модели завершено!")
-            training_data, training_labels, prediction_data, prediction_labels, prediction_faces_index = self._make_sets()
+            if self.model_is_ready is False:
+                self._train_and_save()
+                model = self._load_model()
+            else:
+                model = self.clf_trained
+
+            prediction_data, prediction_labels = self._make_sets()
 
             Logger.print("Определение эмоций началось...")
             np_prediction_data = np.array(prediction_data)
-            pred = self.clf.predict(np_prediction_data)
 
-            prob = self.clf.predict_proba(np_prediction_data)
+            prob = model.predict_proba(np_prediction_data)
             prob_s = np.around(prob, decimals=5)
 
+            pred = self._get_prediction_lables(prob_s)
+
             Logger.print("Завершено! Обработка результатов...")
-            self._process_results(prob_s, pred, prediction_faces_index)
+            self._process_results(prob_s, pred)
         else:
-            return
+            Logger.print("Лица не найдены!")

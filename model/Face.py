@@ -18,26 +18,24 @@ class Face:
     def _pre_process_face_landmarks(np_landmarks):
         x_arr, y_arr = Face._fetch_landmarks_coords_as_arrays(np_landmarks)
 
-        xmean = np.mean(x_arr)
+        xmean = np.mean(x_arr)   # Находим "Центральную точку"
         ymean = np.mean(y_arr)
 
-        xdistances = [(x - xmean) for x in x_arr]
+        xdistances = [(x - xmean) for x in x_arr]   # Получаем расстояния от полученной точки до координат опорных
         ydistances = [(y - ymean) for y in y_arr]
 
         landmarks_vectorized = []
 
         for x, y, w, z in zip(xdistances, ydistances, x_arr, y_arr):
+            # Формируем вектора, зная исходные и конечные координаты
             landmarks_vectorized += [w]
             landmarks_vectorized += [z]
-
-            # meannp = np.asarray((ymean, xmean))
-            # coornp = np.asarray((z, w))
-            # diff = coornp - meannp
 
             distance_vectorized = [y, x]
             distance_normalized = np.linalg.norm(distance_vectorized)
             landmarks_vectorized += [distance_normalized]
 
+            # Имея начальные и конечные координаты находим угол смещения
             degree = math.atan2(y, x)
             rads = (degree * 360) / (2 * math.pi)
             landmarks_vectorized += [rads]

@@ -6,6 +6,7 @@ from model.EmoImage import EmoImage
 class ImgUtils:
 
     IMAGES = []
+    CLAHE = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
 
     @staticmethod
     def upload_images_from(folder, lable=""):
@@ -45,3 +46,7 @@ class ImgUtils:
     @staticmethod
     def image_to_gray(image):
         return cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+    @staticmethod
+    def image_to_clahe(image):
+        return ImgUtils.CLAHE.apply(image)

@@ -19,7 +19,6 @@ class FaceLandmarksDetector:
     RED = (0, 0, 255)
     PATH = os.getcwd()
     LANDMARKS_MODEL_PREDICTOR_PATH = PATH + "\\utils\\shape_predictor_68_face_landmarks.dat"
-    CLAHE = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
 
     def __init__(self, images_folder):
         Logger.print("Загрузка изображений из " + images_folder)
@@ -40,12 +39,11 @@ class FaceLandmarksDetector:
             array[i] = (shape.part(i).x, shape.part(i).y)
         return array
 
-    def _detect_faces_on_gray(self, gray):
-        clahe_image = self.CLAHE.apply(gray)
+    def _detect_faces_on_gray(self, clahe_image):
         return self.detector(clahe_image, 1)
 
     def _detect_landmarks_on_face(self, source, face):
-        return self.predictor(source, face)
+        return self.predictor(source, face)   # Используя dlib модель, находим точки
 
     def _draw_rectangle_around_face(self, source, coordinates, sizes):
         (x, y, w, h) = (coordinates[0], coordinates[1], sizes[0], sizes[1])
@@ -82,23 +80,26 @@ class FaceLandmarksDetector:
             Logger.print("Поиск лиц на изображениях...\n")
             for source in self.sources:
                 Logger.print("Обработка " + source.filename)
-
                 image = source.matrix
-                gray_image = ImgUtils.image_to_gray(image)
-                faces = self._detect_faces_on_gray(gray_image)
+                gray_image = ImgUtils.image_to_gray(image)  # Получаем серое изображение
+                clahe_image = ImgUtils.image_to_clahe(gray_image)  # Удаляем шумы и корректируем контрастность
+                faces = self._detect_faces_on_gray(clahe_image)  # Ищем лица с помощью модели из dlib
 
                 if len(faces) > 0:
                     Logger.print("Найдено " + str(len(faces)) + " лиц")
                     for (i, face) in enumerate(faces):
-                        face_name = self._mark_face(image, face, i + 1)
-                        np_landmarks_shape = self._mark_face_landmarks(image, gray_image, face)
-                        self.faces += [Face(face, face_name, np_landmarks_shape, source)]
+                        face_name = self._mark_face(image, face, i + 1)  # Рисуем прямоугольник вокруг лица
+                        np_landmarks_shape = self._mark_face_landmarks(image, gray_image,
+                                                                       face)  # Ищем ключевые точки моделью из dlib
+                        self.faces += [Face(face, face_name, np_landmarks_shape, source)]  # Сохраняем полученные данные
                 else:
                     Logger.print("Лица не найдены")
         return self.faces
 
     def save_result(self):
-        out_path = self.PATH + "\\out\\"
+        out_path = self.PATH + "\\out\\faces\\"
+        if os.path.exists(out_path) is False:
+            os.makedirs(out_path)
         Logger.print("Сохранение результатов поиска лиц в " + out_path)
         for face in self.faces:
             source = face.source
