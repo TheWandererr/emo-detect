@@ -10,24 +10,24 @@ class Face:
         self.source = source
         self.instance = face
         self.normalized_landmarks = Face._pre_process_face_landmarks(np_landmarks)
-        self.expected_emo = source.emo_label
-        self.predicted_emo = None
-        self.prob = None
+        self.expected_emotion = source.emotion_label
+        self.prediction = None
+        self.proba = None
 
     @staticmethod
     def _pre_process_face_landmarks(np_landmarks):
         x_arr, y_arr = Face._fetch_landmarks_coords_as_arrays(np_landmarks)
 
-        xmean = np.mean(x_arr)   # Находим "Центральную точку"
-        ymean = np.mean(y_arr)
+        x_mean = np.mean(x_arr)  # Находим "Центральную точку"
+        y_mean = np.mean(y_arr)
 
-        xdistances = [(x - xmean) for x in x_arr]   # Получаем расстояния от полученной точки до координат опорных
-        ydistances = [(y - ymean) for y in y_arr]
+        x_distances = [(x - x_mean) for x in x_arr]  # Получаем расстояния от полученной точки до координат опорных
+        y_distances = [(y - y_mean) for y in y_arr]
 
         landmarks_vectorized = []
 
-        for x, y, w, z in zip(xdistances, ydistances, x_arr, y_arr):
-            # Формируем вектора, зная исходные и конечные координаты
+        for x, y, w, z in zip(x_distances, y_distances, x_arr, y_arr):
+            # Формируем вектора, зная начальные и конечные координаты
             landmarks_vectorized += [w]
             landmarks_vectorized += [z]
 
@@ -50,6 +50,6 @@ class Face:
             y_arr += [y]
         return x_arr, y_arr
 
-    def set_emo_recognize_result(self, prob, pred):
-        self.prob = prob
-        self.predicted_emo = pred
+    def set_emo_recognize_result(self, prob, prediction):
+        self.proba = prob
+        self.prediction = prediction

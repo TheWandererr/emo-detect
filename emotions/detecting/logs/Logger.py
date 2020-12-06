@@ -1,22 +1,18 @@
 import datetime
-import os
+
+from emotions.detecting.Constants import LOGGER_FILE
 
 
 class Logger:
-    PATH = os.getcwd()
     LOG_FILE = None
 
     @staticmethod
     def init():
-        Logger.LOG_FILE = open("log.txt", mode="w", encoding="UTF-8")
-
-    @staticmethod
-    def _get_log_file():
-        return Logger.LOG_FILE
+        Logger.LOG_FILE = open(LOGGER_FILE, mode="w", encoding="UTF-8")
 
     @staticmethod
     def print(msg):
-        file = Logger._get_log_file()
+        file = Logger.LOG_FILE
         if file is not None:
             file.write(str(datetime.datetime.now()) + " - " + msg)
             file.write("\n")
