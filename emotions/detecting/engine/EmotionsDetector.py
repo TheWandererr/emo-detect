@@ -72,7 +72,7 @@ class EmotionsDetector:
             file.write("Точность = " + str(correct / len(processed_faces) * 100) + "%")
 
     def _train_and_save(self):
-        Logger.print("Обучение модели началось...")
+        Logger.print("Создание и обучение модели началось...")
         i = 0
         svc = SVC(kernel='linear', probability=True, tol=1e-3)  # Инициализация векторного классифиатора модели SVM
         while i < 20:  # Обучение в 20 циклов
