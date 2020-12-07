@@ -2,13 +2,11 @@ import os
 
 import cv2.cv2 as cv2
 import dlib
-import numpy as np
 
-from emotions.detecting.Constants import LANDMARKS_MODEL_PREDICTOR_PATH, FACES_OUT_PATH, HOGS_OUT_PATH, WHITE
+from emotions.detecting.Constants import LANDMARKS_MODEL_PREDICTOR_PATH, FACES_OUT_PATH
 from emotions.detecting.engine.ImageProcessor import ImageProcessor
 from emotions.detecting.logs.Logger import Logger
 from emotions.detecting.model.Face import Face
-from emotions.detecting.utils.DrawUtils import DrawUtils
 from emotions.detecting.utils.FaceUtils import FaceUtils
 from emotions.detecting.utils.ShapeUtils import ShapeUtils
 

@@ -28,7 +28,7 @@ class FaceUtils:
     def populate_face_landmarks(np_landmarks):
         x_coordinates, y_coordinates = ArrayUtils.divide_into_two_arrays(np_landmarks)
         x_distances, y_distances = FaceUtils._calculate_distances(x_coordinates, y_coordinates)
-        return FaceUtils._eliminate_head_turn(x_distances, y_distances, x_coordinates, y_coordinates)
+        return FaceUtils._eliminate_head_tilt(x_distances, y_distances, x_coordinates, y_coordinates)
 
     @staticmethod
     def _draw_rectangle_around_face(source, coordinates, sizes):
@@ -49,7 +49,7 @@ class FaceUtils:
         return x_distances, y_distances
 
     @staticmethod
-    def _eliminate_head_turn(x_distances, y_distances, x_coordinates, y_coordinates):
+    def _eliminate_head_tilt(x_distances, y_distances, x_coordinates, y_coordinates):
         landmarks_vectorized = []
 
         for x, y, w, z in zip(x_distances, y_distances, x_coordinates, y_coordinates):
