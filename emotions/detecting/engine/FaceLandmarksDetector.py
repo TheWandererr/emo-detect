@@ -2,11 +2,13 @@ import os
 
 import cv2.cv2 as cv2
 import dlib
+import numpy as np
 
-from emotions.detecting.Constants import LANDMARKS_MODEL_PREDICTOR_PATH, OUT_PATH
+from emotions.detecting.Constants import LANDMARKS_MODEL_PREDICTOR_PATH, FACES_OUT_PATH, HOGS_OUT_PATH, WHITE
 from emotions.detecting.engine.ImageProcessor import ImageProcessor
 from emotions.detecting.logs.Logger import Logger
 from emotions.detecting.model.Face import Face
+from emotions.detecting.utils.DrawUtils import DrawUtils
 from emotions.detecting.utils.FaceUtils import FaceUtils
 from emotions.detecting.utils.ShapeUtils import ShapeUtils
 
@@ -15,16 +17,16 @@ class FaceLandmarksDetector:
 
     def __init__(self, images_folder):
         self._init_images(images_folder=images_folder)
-        self.applicable = len(self.emo_images) > 0
+        self.applicable = len(self.emotion_images) > 0
         self.faces = []
 
     def _init_images(self, images_folder):
         Logger.print("Загрузка изображений из " + images_folder)
         self.image_processor = ImageProcessor()
-        self.emo_images = self.image_processor.upload(images_folder).get_images()
+        self.emotion_images = self.image_processor.upload(images_folder).get_images()
 
     def _init_detectors(self):
-        Logger.print("Найдено " + str(len(self.emo_images)) + " изображений")
+        Logger.print("Найдено " + str(len(self.emotion_images)) + " изображений")
         Logger.print("Инициализация детекторов...")
         self.detector = dlib.get_frontal_face_detector()
         self.predictor = dlib.shape_predictor(LANDMARKS_MODEL_PREDICTOR_PATH)
@@ -40,7 +42,7 @@ class FaceLandmarksDetector:
         if self.applicable:
             self._init_detectors()
             Logger.print("Поиск лиц на изображениях...\n")
-            for emo_image in self.emo_images:
+            for emo_image in self.emotion_images:
                 Logger.print("Обработка " + emo_image.filename)
 
                 image = emo_image.matrix
@@ -73,9 +75,12 @@ class FaceLandmarksDetector:
         return self.faces
 
     def save_result(self):
-        if os.path.exists(OUT_PATH) is False:
-            os.makedirs(OUT_PATH)
-        Logger.print("Сохранение результатов поиска лиц в " + OUT_PATH + "\n")
+        self._save_faces()
+
+    def _save_faces(self):
+        if os.path.exists(FACES_OUT_PATH) is False:
+            os.makedirs(FACES_OUT_PATH)
+        Logger.print("Сохранение результатов поиска лиц в " + FACES_OUT_PATH + "\n")
         for face in self.faces:
             source = face.source
-            cv2.imwrite(OUT_PATH + source.filename, source.matrix)
+            cv2.imwrite(FACES_OUT_PATH + source.filename, source.matrix)
