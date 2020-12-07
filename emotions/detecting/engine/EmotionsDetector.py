@@ -1,4 +1,4 @@
-import pickle
+import joblib
 import random
 
 import numpy as np
@@ -17,9 +17,10 @@ class EmotionsDetector:
         self.applicable = len(self.faces) > 0
         Logger.print("Инициализация модели SVM...")
         try:
-            self.SVC = pickle.load(open(MODEL_PATH, 'rb'))
-            self.model_is_ready = True
-            Logger.print("Успех!")
+            with open(MODEL_PATH, 'rb') as trained_model:
+                self.SVC = joblib.load(trained_model)
+                self.model_is_ready = True
+                Logger.print("Успех!")
         except FileNotFoundError:
             Logger.print("Ошибка инициализации. Модель не найдена")
             self.SVC = None
@@ -90,7 +91,8 @@ class EmotionsDetector:
             svc.fit(np_training_data, np_training_labels)  # Обучение классификатора
             i += 1
         Logger.print("Обучение завершено успешно! Сохранение модели")
-        pickle.dump(svc, open(MODEL_PATH, 'wb'))  # Сохранение обученной модели
+        with open(MODEL_PATH, 'wb') as dumpfile:
+            joblib.dump(svc, dumpfile)  # Сохранение обученной модели
         Logger.print("Сохранение прошло успешно!")
 
     def _get_prediction_labels(self, proba):
@@ -110,7 +112,8 @@ class EmotionsDetector:
 
             if self.model_is_ready is False:
                 self._train_and_save()
-                model = pickle.load(open(MODEL_PATH, 'rb'))
+                with open(MODEL_PATH, 'rb') as trained_model:
+                    model = joblib.load(trained_model)
             else:
                 model = self.SVC
 
