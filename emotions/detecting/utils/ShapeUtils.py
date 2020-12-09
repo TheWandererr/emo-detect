@@ -1,4 +1,5 @@
 import numpy as np
+import math
 
 from emotions.detecting.Constants import POINTS_DETECTING
 
@@ -19,4 +20,13 @@ class ShapeUtils:
         w = rectangle.right() - x
         h = rectangle.bottom() - y
         return x, y, w, h
+
+    @staticmethod
+    def rotate(origin, point, angle):
+        ox, oy = origin
+        px, py = point
+
+        qx = ox + math.cos(angle) * (px - ox) - math.sin(angle) * (py - oy)
+        qy = oy + math.sin(angle) * (px - ox) + math.cos(angle) * (py - oy)
+        return [int(round(qx)), int(round(qy))]
 

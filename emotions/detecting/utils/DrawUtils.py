@@ -17,5 +17,4 @@ class DrawUtils:
 
     @staticmethod
     def sign(source, text, x, y):
-        cv2.putText(source, text, (x - 10, y - 10),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.3, GREEN, 1)
+        cv2.putText(source, text, (x - 10, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, GREEN, 1)

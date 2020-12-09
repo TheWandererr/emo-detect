@@ -7,7 +7,9 @@ class Face:
         self.name = name
         self.source = source
         self.instance = face
-        self.normalized_landmarks = FaceUtils.populate_face_landmarks(np_landmarks)
+        self.np_landmarks = np_landmarks
+        self.rotated_np_landmarks = FaceUtils.remove_face_tilt(np_landmarks)
+        self.SVM_params = FaceUtils.populate_face_landmarks(self.rotated_np_landmarks)
         self.expected_emotion = source.emotion_label
         self.prediction = None
         self.proba = None

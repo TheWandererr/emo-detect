@@ -1,13 +1,9 @@
-import os
-
-import cv2.cv2 as cv2
 import dlib
 
-from emotions.detecting.Constants import LANDMARKS_MODEL_PREDICTOR_PATH, FACES_OUT_PATH
+from emotions.detecting.Constants import LANDMARKS_MODEL_PREDICTOR_PATH
 from emotions.detecting.engine.ImageProcessor import ImageProcessor
 from emotions.detecting.logs.Logger import Logger
 from emotions.detecting.model.Face import Face
-from emotions.detecting.utils.FaceUtils import FaceUtils
 from emotions.detecting.utils.ShapeUtils import ShapeUtils
 
 
@@ -53,17 +49,13 @@ class FaceLandmarksDetector:
                 if len(faces) > 0:
                     Logger.print("Найдено " + str(len(faces)) + " лиц")
                     for (i, face) in enumerate(faces):
-                        face_name = FaceUtils.mark_face(image, face, i + 1)  # Рисуем прямоугольник вокруг лица
+                        face_name = "Face #{}".format(i + 1)  # Сохраняем имя лица
 
                         Logger.print("Поиск ключевых точек на лице...")
                         landmarks_shape = self._detect_landmarks_on_face(gray_image,
                                                                          face)  # Ищем ключевые точки моделью из dlib
                         np_shape = ShapeUtils.shape_to_np_array(landmarks_shape)
-
-                        Logger.print("Ключевые точки найдены")
-
-                        Logger.print("Отрисовка точек\n")
-                        FaceUtils.draw_face_landmarks(image, np_shape)
+                        Logger.print("Ключевые точки найдены" + "\n")
 
                         self.faces += [Face(face, face_name, np_shape, emo_image)]  # Сохраняем результат
                 else:
@@ -71,14 +63,3 @@ class FaceLandmarksDetector:
         else:
             Logger.print("Изображений нет. Завершение...")
         return self.faces
-
-    def save_result(self):
-        self._save_faces()
-
-    def _save_faces(self):
-        if os.path.exists(FACES_OUT_PATH) is False:
-            os.makedirs(FACES_OUT_PATH)
-        Logger.print("Сохранение результатов поиска лиц в " + FACES_OUT_PATH + "\n")
-        for face in self.faces:
-            source = face.source
-            cv2.imwrite(FACES_OUT_PATH + source.filename, source.matrix)

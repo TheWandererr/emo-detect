@@ -1,6 +1,6 @@
-import joblib
 import random
 
+import joblib
 import numpy as np
 from sklearn.svm import SVC
 
@@ -36,53 +36,23 @@ class EmotionsDetector:
         # self._shuffle_faces()
 
         for item in self.faces:
-            prediction_data += [item.normalized_landmarks]
+            prediction_data += [item.SVM_params]
             prediction_labels += [item.expected_emotion]
 
         return prediction_data, prediction_labels
 
-    def _process_results(self, proba, predictions):
-        for i, face_emotions in enumerate(proba):
-            result_proba = []
-            for emo_index, emotion in enumerate(self.EMOTIONS):
-                result_proba += [{emotion: refactor(face_emotions[emo_index] * 100, 3)}]
-            self.faces[i].set_emo_recognize_result(list(result_proba), predictions[i])
-        self._log_results()
-
-    def _log_results(self):
-        Logger.print("Сохранение результатов в " + RESULT_FILE)
-        processed_faces = self.faces
-        correct = 0
-        incorrect = 0
-        with open(RESULT_FILE, "w", encoding="UTF-8") as file:
-            for face in processed_faces:
-                expected_emotion = face.expected_emotion
-                predicted_emotion = face.prediction
-                if expected_emotion == predicted_emotion:
-                    correct += 1
-                else:
-                    incorrect += 1
-                file.write("Имя файла: " + face.source.filename + "\n")
-                file.write("Ожидаемая эмоция: " + expected_emotion + "\n")
-                file.write("Полученная эмоция: " + predicted_emotion + "\n")
-                file.write("Общие результаты в %:" + str(face.proba) + "\n\n")
-
-            file.write("Итого: \n")
-            file.write("Верные: " + str(correct) + "\n")
-            file.write("Неверные: " + str(incorrect) + "\n")
-            file.write("Точность = " + str(correct / len(processed_faces) * 100) + "%")
-
     def _train_and_save(self):
         Logger.print("Создание и обучение модели началось...")
         i = 0
-        svc = SVC(kernel='linear', probability=True, tol=1e-3)  # Инициализация векторного классифиатора модели SVM
-        while i < 20:  # Обучение в 20 циклов
+        svc = SVC(kernel='linear', probability=True, tol=1e-4,
+                  cache_size=400)  # Инициализация векторного классифиатора модели SVM
+        while i < 100:  # Обучение в 25 циклов
             training_data = []
             training_labels = []
             self._shuffle_faces()  # Перемешивание входных данных
 
             for face in self.faces:
-                training_data += [face.normalized_landmarks]  # Формирование массива из векторов опорных точечк
+                training_data += [face.SVM_params]  # Формирование массива из векторов опорных точечк
                 training_labels += [face.expected_emotion]  # Формирование массива ожидаемых эмоций
 
             np_training_data = np.array(training_data)  # Преобразование массивов в удобный для классификатора вид
@@ -107,9 +77,40 @@ class EmotionsDetector:
             predictions += [self.EMOTIONS[index_emo_saved]]
         return predictions
 
+    def _process_predictions(self, proba, predictions):
+        for i, face_emotions in enumerate(proba):
+            result_proba = []
+            for emo_index, emotion in enumerate(self.EMOTIONS):
+                result_proba += [{emotion: refactor(face_emotions[emo_index] * 100, 3)}]
+            self.faces[i].set_emo_recognize_result(list(result_proba), predictions[i])
+        self._log_results()
+
+    def _log_results(self):
+        Logger.print("Сохранение результатов в " + RESULT_FILE)
+        processed_faces = self.faces
+        correct = 0
+        incorrect = 0
+        with open(RESULT_FILE, "w", encoding="UTF-8") as file:
+            for face in processed_faces:
+                expected_emotion = face.expected_emotion
+                predicted_emotion = face.prediction
+                if expected_emotion == predicted_emotion:
+                    correct += 1
+                else:
+                    incorrect += 1
+                file.write("Имя файла: " + face.source.filename + "\n")
+                file.write("Лицо: " + face.name + "\n")
+                file.write("Ожидаемая эмоция: " + expected_emotion + "\n")
+                file.write("Полученная эмоция: " + predicted_emotion + "\n")
+                file.write("Общие результаты в %:" + str(face.proba) + "\n\n")
+
+            file.write("Итого: \n")
+            file.write("Верные: " + str(correct) + "\n")
+            file.write("Неверные: " + str(incorrect) + "\n")
+            file.write("Точность = " + str(correct / len(processed_faces) * 100) + "%")
+
     def recognize(self):
         if self.applicable:
-
             if self.model_is_ready is False:
                 self._train_and_save()
                 with open(MODEL_PATH, 'rb') as trained_model:
@@ -128,6 +129,6 @@ class EmotionsDetector:
             predictions = self._get_prediction_labels(proba=proba_around)
 
             Logger.print("Завершено! Обработка результатов...")
-            self._process_results(proba_around, predictions)
+            self._process_predictions(proba_around, predictions)
         else:
             Logger.print("Лица не найдены!")
