@@ -1,4 +1,4 @@
-from emotions.detecting.utils.FaceUtils import FaceUtils
+from emotions.detecting.utils import FaceUtils
 
 
 class Face:
@@ -10,10 +10,10 @@ class Face:
         self.np_landmarks = np_landmarks
         self.rotated_np_landmarks = FaceUtils.remove_face_tilt(np_landmarks)
         self.SVM_params = FaceUtils.populate_face_landmarks(self.rotated_np_landmarks)
-        self.expected_emotion = source.emotion_label
+        self.face_label = source.emotion_label
         self.prediction = None
         self.proba = None
 
-    def set_emo_recognize_result(self, prob, prediction):
-        self.proba = prob
+    def set_emo_recognize_result(self, proba, prediction):
+        self.proba = proba
         self.prediction = prediction

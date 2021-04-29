@@ -4,7 +4,7 @@ from emotions.detecting.Constants import LANDMARKS_MODEL_PREDICTOR_PATH
 from emotions.detecting.engine.ImageProcessor import ImageProcessor
 from emotions.detecting.logs.Logger import Logger
 from emotions.detecting.model.Face import Face
-from emotions.detecting.utils.ShapeUtils import ShapeUtils
+from emotions.detecting.utils import ShapeUtils
 
 
 class FaceLandmarksDetector:
@@ -55,11 +55,11 @@ class FaceLandmarksDetector:
                         landmarks_shape = self._detect_landmarks_on_face(gray_image,
                                                                          face)  # Ищем ключевые точки моделью из dlib
                         np_shape = ShapeUtils.shape_to_np_array(landmarks_shape)
-                        Logger.print("Ключевые точки найдены" + "\n")
+                        Logger.print("Ключевые точки найдены\n")
 
                         self.faces += [Face(face, face_name, np_shape, emo_image)]  # Сохраняем результат
                 else:
-                    Logger.print("Лица не найдены")
+                    Logger.print("Лица не найдены\n")
         else:
             Logger.print("Изображений нет. Завершение...")
         return self.faces

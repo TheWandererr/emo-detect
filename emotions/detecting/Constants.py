@@ -6,7 +6,7 @@ LANDMARKS_MODEL_PREDICTOR_PATH = MAIN_PATH + "\\emotions\\detecting\\resources\\
 MODEL_PATH = MAIN_PATH + "\\emotions\\detecting\\resources\\finalized_model.svm"
 FACES_OUT_PATH = MAIN_PATH + "\\out\\faces\\"
 
-LOGGER_FILE = MAIN_PATH + "\\emotions\\detecting\\logs\\log.txt"
+LOGGER_FILE = MAIN_PATH + "\\out\\log.txt"  # "\\emotions\\detecting\\logs\\log.txt"
 RESULT_FILE = MAIN_PATH + "\\out\\res.txt"
 
 POINTS_DETECTING = 68
@@ -19,3 +19,5 @@ SCALE = 60
 GREEN = (0, 255, 0)
 RED = (0, 0, 255)
 WHITE = (255, 255, 255)
+
+EMOTIONS = ["anger", "contempt", "disgust", "fear", "happiness", "sadness", "surprise"]
