@@ -62,7 +62,7 @@ class EmotionsAnalyzer:
     def _check_analysis(self, answers):
         Logger.print("Проверка ответов...")
         index = 0
-        while index < len(answers):
+        while index < len(self.emotion_events):
             self.answers_coincidences += [answers[index] == self.emotion_events[index].positive]
             index += 1
         Logger.print("Завершено!")

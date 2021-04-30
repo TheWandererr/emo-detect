@@ -61,16 +61,17 @@ def _create_irritation_bar(data, labels, length):
     df = pd.DataFrame(data)
     df.plot(kind='bar')
     plt.xticks(index, labels)
+    plt.title('Уровень эмоционального стресса', fontsize=20)
     plt.xlabel('Вопросы')
     plt.ylabel('Уровень эмоц. стресса, %')
-    Logger.print("Отрисовка диаграммы собеседования")
+    Logger.print("Отрисовка диаграммы эмоционального стресса")
     plt.show()
 
 
 def _create_irritation_plot(all_irritation_points, labels):
     df = pd.Series(all_irritation_points, index=labels)
     df.plot.line()
-    Logger.print("Отрисовка графика собеседования")
+    Logger.print("Отрисовка графика эмоционального стресса")
     plt.title('Уровень эмоционального стресса', fontsize=20)
     plt.xlabel('Прогресс собеседования, %')
     plt.ylabel('Уровень эмоц. стресса, %')
