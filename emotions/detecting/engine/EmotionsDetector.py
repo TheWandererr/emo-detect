@@ -97,7 +97,7 @@ class EmotionsDetector:
             self.faces[index].set_emo_recognize_result(result_proba, predictions[index])
 
     def print_results(self):
-        Logger.print("Сохранение результатов в " + EMOTIONS_RECOGNITION_RESULT_FILE)
+        Logger.print("Сохранение результатов распознавания эмоций в {path}".format(path=EMOTIONS_RECOGNITION_RESULT_FILE))
         correct = 0
         incorrect = 0
         with open(EMOTIONS_RECOGNITION_RESULT_FILE, "w", encoding="UTF-8") as file:
@@ -108,16 +108,16 @@ class EmotionsDetector:
                     correct += 1
                 else:
                     incorrect += 1
-                file.write("Имя файла: " + face.source.filename + "\n")
-                file.write("Лицо: " + face.name + "\n")
-                file.write("Ожидаемая эмоция: " + expected_emotion + "\n")
-                file.write("Полученная эмоция: " + predicted_emotion + "\n")
-                file.write("Общие результаты в %:" + str(face.proba) + "\n\n")
+                file.write("Имя файла: {name}\n".format(name=face.source.filename))
+                file.write("Лицо: {name}\n".format(name=face.name))
+                file.write("Ожидаемая эмоция: {value}\n".format(value=expected_emotion))
+                file.write("Полученная эмоция: {value}\n".format(value=predicted_emotion))
+                file.write("Общие результаты в %: {value}\n\n".format(value=face.proba))
 
             file.write("Итого: \n")
-            file.write("Верные: " + str(correct) + "\n")
-            file.write("Неверные: " + str(incorrect) + "\n")
-            file.write("Точность = " + str(correct / len(self.faces) * 100) + "%")
+            file.write("Верные: {correct}\n".format(correct=correct))
+            file.write("Неверные: {incorrect}\n".format(incorrect=incorrect))
+            file.write("Точность = {value}%\n".format(value=correct / len(self.faces) * 100))
 
     def recognize(self):
         if self.applicable:

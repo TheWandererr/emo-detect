@@ -32,7 +32,7 @@ def get_event_irritation(event_proba):
     return irritation
 
 
-class EmotionsAnalyzer:
+class EmotionalStressAnalyzer:
     INITIAL_STATE_SIZE = 0.3
     FINAL_STATE_SIZE = 0.3
 
@@ -45,19 +45,19 @@ class EmotionsAnalyzer:
     def _get_middle_mean_proba(event_faces):
         return get_event_mean_proba(
             ArrayUtils.cut(event_faces,
-                           round(len(event_faces) * EmotionsAnalyzer.INITIAL_STATE_SIZE),
-                           round(len(event_faces) * (1 - EmotionsAnalyzer.FINAL_STATE_SIZE)))
+                           round(len(event_faces) * EmotionalStressAnalyzer.INITIAL_STATE_SIZE),
+                           round(len(event_faces) * (1 - EmotionalStressAnalyzer.FINAL_STATE_SIZE)))
         )
 
     @staticmethod
     def _get_initial_mean_proba(event_faces):
         return get_event_mean_proba(
-            ArrayUtils.cut_left(event_faces, round(len(event_faces) * EmotionsAnalyzer.INITIAL_STATE_SIZE)))
+            ArrayUtils.cut_left(event_faces, round(len(event_faces) * EmotionalStressAnalyzer.INITIAL_STATE_SIZE)))
 
     @staticmethod
     def _get_final_mean_proba(event_faces):
         return get_event_mean_proba(
-            ArrayUtils.cut_right(event_faces, round(len(event_faces) * EmotionsAnalyzer.FINAL_STATE_SIZE)))
+            ArrayUtils.cut_right(event_faces, round(len(event_faces) * EmotionalStressAnalyzer.FINAL_STATE_SIZE)))
 
     def _check_analysis(self, answers):
         Logger.print("Проверка ответов...")
@@ -72,13 +72,13 @@ class EmotionsAnalyzer:
         for event in self.events:
             event_faces = self.events[event]
 
-            initial_mean_proba = EmotionsAnalyzer._get_initial_mean_proba(event_faces)
+            initial_mean_proba = EmotionalStressAnalyzer._get_initial_mean_proba(event_faces)
             initial_irritation = get_event_irritation(initial_mean_proba)  # EMOTIONAL_STRESS_POINT 1
 
-            middle_mean_proba = EmotionsAnalyzer._get_middle_mean_proba(event_faces)
+            middle_mean_proba = EmotionalStressAnalyzer._get_middle_mean_proba(event_faces)
             middle_irritation = get_event_irritation(middle_mean_proba)  # EMOTIONAL_STRESS_POINT 2
 
-            final_mean_proba = EmotionsAnalyzer._get_final_mean_proba(event_faces)
+            final_mean_proba = EmotionalStressAnalyzer._get_final_mean_proba(event_faces)
             final_irritation = get_event_irritation(final_mean_proba)  # EMOTIONAL_STRESS_POINT 3
 
             self.emotion_events += [EmotionEvent(event,
@@ -92,20 +92,22 @@ class EmotionsAnalyzer:
         self._check_analysis(answers)
 
     def print_results(self):
-        Logger.print("Сохранение результатов в " + ANSWERS_PREDICTIONS_RESULT_FILE)
+        Logger.print("Сохранение результатов в {path}".format(path=ANSWERS_PREDICTIONS_RESULT_FILE))
         with open(ANSWERS_PREDICTIONS_RESULT_FILE, "w", encoding="UTF-8") as file:
             index = 0
             total = len(self.emotion_events)
             while index < total:
                 emotion_event = self.emotion_events[index]
-                file.write("Имя события (вопроса): " + emotion_event.name + "\n")
-                file.write("Ответ был верным: " + str(emotion_event.positive == self.answers_coincidences[index]) + "\n")
-                file.write("Версия системы: " + str(emotion_event.positive) + "\n\n")
+                file.write("Имя события (вопроса): {name}\n".format(name=emotion_event.name))
+                file.write("Ответ был верным: {bool}\n".format(
+                    bool=emotion_event.positive == self.answers_coincidences[index])
+                )
+                file.write("Версия системы: {bool}\n\n".format(bool=emotion_event.positive))
                 index += 1
             correct = sum(self.answers_coincidences)
-            file.write("Количество верно предсказанных: " + str(correct) + "\n")
-            file.write("Всего вопросов: " + str(total) + "\n")
-            file.write("Точность " + str(correct / total * 100) + "\n")
+            file.write("Количество верно предсказанных: {correct}\n".format(correct=correct))
+            file.write("Всего вопросов: {total}\n".format(total=total))
+            file.write("Точность: {value}\n".format(value=correct / total * 100))
 
     def get_emotion_events(self) -> [EmotionEvent]:
         return self.emotion_events

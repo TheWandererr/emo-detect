@@ -32,3 +32,7 @@ def cut(array, _from, _to):
 
 def last(array):
     return array[-1]
+
+
+def not_empty(array):
+    return len(array) > 0

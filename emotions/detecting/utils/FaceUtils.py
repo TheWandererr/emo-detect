@@ -4,6 +4,8 @@ import os
 import numpy as np
 from cv2 import cv2
 
+from emotions.detecting.Constants import FACES_OUT_PATH
+from emotions.detecting.logs.Logger import Logger
 from emotions.detecting.utils import ArrayUtils, CV2Utils, ShapeUtils
 
 
@@ -83,11 +85,20 @@ def sign_face(source, text, x, y):
 
 
 def save_all(faces, target_path, landmarks_color):
+    Logger.print("Сохранение результатов распознавания лиц и ключевых точек {path} \n".format(path=FACES_OUT_PATH))
     if os.path.exists(target_path) is False:
         os.makedirs(target_path)
+    index = 0
     for face in faces:
         source = face.source
-        mark_face(source.matrix, face.instance, face.name + ": " + face.prediction)
+        mark_face(source.matrix, face.instance, "{name}: {prediction}".format(name=face.name,
+                                                                              prediction=face.prediction))
         draw_face_landmarks(source.matrix, face.np_landmarks, landmarks_color)
         draw_face_landmarks(source.matrix, face.np_landmarks, landmarks_color)
-        cv2.imwrite(target_path + source.filename, source.matrix)
+        name, extension = source.filename.split('.')
+        cv2.imwrite("{target_path}{name}_{face_name}_{index}.{ext}".format(target_path=target_path,
+                                                                           name=name,
+                                                                           face_name=face.name,
+                                                                           index=index,
+                                                                           ext=extension), source.matrix)
+        index += 1

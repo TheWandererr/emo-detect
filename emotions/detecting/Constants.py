@@ -1,19 +1,19 @@
-import ctypes
 import os
 
-MAIN_PATH = os.getcwd()
-LANDMARKS_MODEL_PREDICTOR_PATH = MAIN_PATH + "\\emotions\\detecting\\resources\\shape_predictor_68_face_landmarks.dat"
-EMOTIONS_CLASSIFIER_PATH = MAIN_PATH + "\\emotions\\detecting\\resources\\finalized_model.svm"
-FACES_OUT_PATH = MAIN_PATH + "\\out\\faces\\"
+from emotions.detecting.engine.EngineMode import EngineMode
 
-LOGGER_FILE = MAIN_PATH + "\\out\\log.txt"  # "\\emotions\\detecting\\logs\\log.txt"
-EMOTIONS_RECOGNITION_RESULT_FILE = MAIN_PATH + "\\out\\emotions_recognition_result.txt"
-ANSWERS_PREDICTIONS_RESULT_FILE = MAIN_PATH + "\\out\\answers_predictions_result.txt"
+MAIN_PATH = os.getcwd()
+LANDMARKS_MODEL_PREDICTOR_PATH = \
+    "{main_path}\\emotions\\detecting\\resources\\shape_predictor_68_face_landmarks.dat".format(main_path=MAIN_PATH)
+EMOTIONS_CLASSIFIER_PATH = \
+    "{main_path}\\emotions\\detecting\\resources\\finalized_model.svm".format(main_path=MAIN_PATH)
+FACES_OUT_PATH = "{main_path}\\out\\faces\\".format(main_path=MAIN_PATH)
+
+LOGGER_FILE = "{main_path}\\out\\log.txt".format(main_path=MAIN_PATH)  # \\emotions\\detecting\\logs\\log.txt"
+EMOTIONS_RECOGNITION_RESULT_FILE = "{main_path}\\out\\emotions_recognition_result.txt".format(main_path=MAIN_PATH)
+ANSWERS_PREDICTIONS_RESULT_FILE = "{main_path}\\out\\answers_predictions_result.txt".format(main_path=MAIN_PATH)
 
 POINTS_DETECTING = 68
-
-WIDTH = ctypes.windll.user32.GetSystemMetrics(0)
-HEIGHT = ctypes.windll.user32.GetSystemMetrics(1)
 
 SCALE = 60
 
@@ -31,6 +31,7 @@ RATES_OF_EMOTIONAL_IRRITATION = {EMOTIONS[0]: 1.0,
                                  EMOTIONS[4]: 0.0,
                                  EMOTIONS[5]: 0.3,
                                  EMOTIONS[6]: 0.35}
+EPSILON = 10
+ACTIVE_ENGINE_MODE = EngineMode.PREDICTION
 
 ANSWERS = [False, True, True, False, True, True, True]
-EPSILON = 10

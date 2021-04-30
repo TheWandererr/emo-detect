@@ -14,8 +14,7 @@ class Logger:
     def print(msg):
         file = Logger.LOG_FILE
         if file is not None:
-            file.write(str(datetime.datetime.now()) + " - " + msg)
-            file.write("\n")
+            file.write("{time} - {message}\n".format(time=datetime.datetime.now(), message=msg))
 
     @staticmethod
     def destroy():
