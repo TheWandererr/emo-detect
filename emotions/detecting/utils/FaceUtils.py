@@ -4,7 +4,6 @@ import os
 import numpy as np
 from cv2 import cv2
 
-from emotions.detecting.logs.Logger import Logger
 from emotions.detecting.utils import ArrayUtils, CV2Utils, ShapeUtils
 
 

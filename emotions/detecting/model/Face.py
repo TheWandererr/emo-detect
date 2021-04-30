@@ -11,8 +11,8 @@ class Face:
         self.rotated_np_landmarks = FaceUtils.remove_face_tilt(np_landmarks)
         self.SVM_params = FaceUtils.populate_face_landmarks(self.rotated_np_landmarks)
         self.face_label = source.emotion_label
-        self.prediction = None
-        self.proba = None
+        self.prediction = ""
+        self.proba = {}
 
     def set_emo_recognize_result(self, proba, prediction):
         self.proba = proba
