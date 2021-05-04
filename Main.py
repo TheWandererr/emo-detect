@@ -23,7 +23,7 @@ def start():
         emo_stress_analyzer = EmotionalStressAnalyzer(faces)
         emo_stress_analyzer.analyze(ANSWERS)
         emo_stress_analyzer.print_results()
-        EmoGraphUtils.get_irritation_graphs(emo_stress_analyzer.get_emotion_events())
+        EmoGraphUtils.get_irritation_graphs(emo_stress_analyzer.get_emotion_stages())
 
 
 if __name__ == '__main__':
