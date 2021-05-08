@@ -25,7 +25,7 @@ EMOTIONS = ["anger", "contempt", "disgust", "fear", "happiness", "sadness", "sur
 EMOTIONAL_STRESS_POINTS = 3
 EMOTIONAL_STRESS_MINIMUM = 48.0
 RATES_OF_EMOTIONAL_IRRITATION = {EMOTIONS[0]: 1.0,
-                                 EMOTIONS[1]: 0.8,
+                                 EMOTIONS[1]: 0.6,
                                  EMOTIONS[2]: 0.95,
                                  EMOTIONS[3]: 1.0,
                                  EMOTIONS[4]: 0.0,
@@ -34,4 +34,4 @@ RATES_OF_EMOTIONAL_IRRITATION = {EMOTIONS[0]: 1.0,
 EPSILON = 10
 ACTIVE_ENGINE_MODE = EngineMode.PREDICTION
 
-ANSWERS = [False, True, True, False, True, True, True]
+ANSWERS = [False, False, True, True, True, False, True]

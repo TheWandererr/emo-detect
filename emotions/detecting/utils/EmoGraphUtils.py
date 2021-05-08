@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from scipy.interpolate import interpolate
 
 from emotions.detecting.logs.Logger import Logger
 
@@ -23,12 +24,14 @@ def _create_plot_irritation_params(emotion_stages):
     plot_irritation_points = []
 
     for stage in emotion_stages:
-        plot_irritation_points += stage.stage_irritations
+        plot_irritation_points += [stage.initial_irritation, stage.middle_irritation, stage.final_irritation]
+        # plot_irritation_points += stage.stage_irritations
     total_points = len(plot_irritation_points)
     percent = 1 / total_points * 100
     for point in plot_irritation_points:
         plot_labels += [plot_labels[-1] + percent]
-    plot_irritation_points.insert(0, plot_irritation_points[0] / 2)
+    if total_points > 0:
+        plot_irritation_points.insert(0, plot_irritation_points[0] / 2)
     return plot_irritation_points, plot_labels
 
 
@@ -58,9 +61,13 @@ def _create_irritation_bar(data, labels, stages):
 
 
 def _create_irritation_plot(all_irritation_points, labels):
-    df = pd.Series(all_irritation_points, index=labels)
-    df.plot.line()
+    # df = pd.Series(all_irritation_points, index=labels)
+    # df.plot.line()
     Logger.print("Отрисовка графика эмоционального стресса")
+    x = np.linspace(labels[0], labels[-1], len(all_irritation_points) * 10)
+    bspline = interpolate.make_interp_spline(labels, all_irritation_points)
+    y = bspline(x)
+    plt.plot(x, y)
     plt.title('Уровень эмоционального стресса', fontsize=20)
     plt.xlabel('Прогресс собеседования, %')
     plt.ylabel('Уровень эмоц. стресса, %')
