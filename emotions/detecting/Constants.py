@@ -15,8 +15,6 @@ ANSWERS_PREDICTIONS_RESULT_FILE = "{main_path}\\out\\answers_predictions_result.
 
 POINTS_DETECTING = 68
 
-SCALE = 60
-
 GREEN = (0, 255, 0)
 RED = (0, 0, 255)
 WHITE = (255, 255, 255)
@@ -29,9 +27,9 @@ RATES_OF_EMOTIONAL_IRRITATION = {EMOTIONS[0]: 1.0,
                                  EMOTIONS[2]: 0.95,
                                  EMOTIONS[3]: 1.0,
                                  EMOTIONS[4]: 0.0,
-                                 EMOTIONS[5]: 0.2,
+                                 EMOTIONS[5]: 0.4,
                                  EMOTIONS[6]: 0.35}
 EPSILON = 10
-ACTIVE_ENGINE_MODE = EngineMode.PREDICTION
+ACTIVE_ENGINE_MODE = EngineMode.ANALYZING
 
 ANSWERS = [False, False, True, True, True, False, True]

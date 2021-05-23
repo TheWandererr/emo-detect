@@ -5,8 +5,8 @@ from emotions.detecting.utils import ArrayUtils
 
 
 class EmotionStage:
-    INITIAL_STATE_SIZE = 0.2
-    FINAL_STATE_SIZE = 0.1
+    INITIAL_STATE_SIZE = 0.3
+    FINAL_STATE_SIZE = 0.3
 
     def __init__(self,
                  name,
@@ -17,7 +17,7 @@ class EmotionStage:
 
         self.stage_irritations = stage_irritations
 
-        # EMOTIONAL_STRESS_POINT Q1
+        # EMOTIONAL_STRESS_POINT 1
         self.initial_irritation = statistics.mean(
             ArrayUtils.cut_left(stage_irritations,
                                 round(len(stage_irritations) * EmotionStage.INITIAL_STATE_SIZE)))
@@ -56,7 +56,7 @@ class EmotionStage:
                        or self.middle_irritation > EMOTIONAL_STRESS_MINIMUM * 1.2
             else:
                 return self._final_irritation_more_than_initial() \
-                       and EmotionStage.has_negative_irritation(self.final_irritation)
+                       or EmotionStage.has_negative_irritation(self.final_irritation)
         else:
             return self._stress_increased_after_thinking() \
                    or (self._final_irritation_more_than_initial()

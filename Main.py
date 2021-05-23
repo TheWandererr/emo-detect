@@ -19,7 +19,7 @@ def start():
     if ACTIVE_ENGINE_MODE == EngineMode.RECOGNITION:
         emo_detector.print_results()
         FaceUtils.save_all(faces=faces, target_path=FACES_OUT_PATH, landmarks_color=RED)
-    elif ACTIVE_ENGINE_MODE == EngineMode.PREDICTION:
+    elif ACTIVE_ENGINE_MODE == EngineMode.ANALYZING:
         emo_stress_analyzer = EmotionalStressAnalyzer(faces)
         emo_stress_analyzer.analyze(ANSWERS)
         emo_stress_analyzer.print_results()
