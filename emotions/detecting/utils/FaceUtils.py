@@ -35,7 +35,7 @@ def remove_face_tilt(np_landmarks):
     # Находим угол наклона глаз
     eye_top = (max(right_eye_mean[0], left_eye_mean[0]), max(right_eye_mean[1], left_eye_mean[1]))
     eye_min = (min(right_eye_mean[0], left_eye_mean[0]), min(right_eye_mean[1], left_eye_mean[1]))
-    angle = math.atan2(eye_top[1] - eye_min[1], eye_top[0] - eye_min[0])
+    angle = math.atan2(eye_top[1] - eye_min[1], abs(eye_top[0] - eye_min[0]))
 
     if right_eye_mean[1] > left_eye_mean[1]:  # Определяем в какую сторону вращать ключевые точки
         angle = -angle

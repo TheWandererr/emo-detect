@@ -27,8 +27,8 @@ RATES_OF_EMOTIONAL_IRRITATION = {EMOTIONS[0]: 1.0,
                                  EMOTIONS[2]: 0.95,
                                  EMOTIONS[3]: 1.0,
                                  EMOTIONS[4]: 0.0,
-                                 EMOTIONS[5]: 0.4,
-                                 EMOTIONS[6]: 0.35}
+                                 EMOTIONS[5]: 0.3,
+                                 EMOTIONS[6]: 0.2}
 EPSILON = 10
 ACTIVE_ENGINE_MODE = EngineMode.ANALYZING
 
